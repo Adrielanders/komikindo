@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Reader - Komiku Indo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+  body {
+    margin: 0;
+    background: #050812;
+    color: white;
+    font-family: Arial, sans-serif;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    padding: 10px 16px;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(12px);
+    z-index: 20;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .title {
+    font-size: 14px;
+    opacity: .7;
+  }
+
+  .reader-container {
+    width: 100%;
+    max-width: 760px;
+    margin: auto;
+    padding: 20px 0;
+  }
+
+  .chapter-title {
+    font-size: 16px;
+    margin: 12px 0 4px;
+    opacity: .9;
+  }
+
+  .chapter-info {
+    font-size: 12px;
+    color: #95a0c3;
+    margin-bottom: 10px;
+  }
+
+  .page-img {
+    width: 100%;
+    margin-bottom: 10px;
+    background: #0f1423;
+    border-radius: 6px;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 20px;
+    font-size: 12px;
+    color: #8c96b8;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title" id="headerTitle">Memuat...</div>
+</header>
+
+<div class="reader-container" id="readerContainer"></div>
+<div class="loading" id="loading">Memuat chapter...</div>
+
+<script>
+// ===============================
+// 1. DAPATKAN CHAPTER DARI URL
+// ===============================
+
+// contoh: reader.html?chapter=180
+const urlParams = new URLSearchParams(window.location.search);
+let currentChapter = parseInt(urlParams.get("chapter"));
+
+// Jika user tidak pilih chapter → default chapter 1
+if (!currentChapter) currentChapter = 1;
+
+
+// ===============================
+// 2. SIMULASI DATA (NANTI GANTI API)
+// ===============================
+
+const CHAPTERS = [
+  {
+    number: 180,
+    title: "Ch.180 – Pertarungan Terakhir",
+    date: "2 jam lalu",
+    pages: [
+      "pages/solo/180/001.jpg",
+      "pages/solo/180/002.jpg",
+      "pages/solo/180/003.jpg",
+    ]
+  },
+  {
+    number: 179,
+    title: "Ch.179 – Bayangan Terakhir",
+    date: "1 hari lalu",
+    pages: [
+      "pages/solo/179/001.jpg",
+      "pages/solo/179/002.jpg",
+      "pages/solo/179/003.jpg",
+    ]
+  },
+  {
+    number: 178,
+    title: "Ch.178 – Panggung Terakhir",
+    date: "3 hari lalu",
+    pages: [
+      "pages/solo/178/001.jpg",
+      "pages/solo/178/002.jpg",
+      "pages/solo/178/003.jpg",
+    ]
+  }
+];
+
+// Fungsi ambil chapter dari array di atas
+function getChapter(chNumber) {
+  return CHAPTERS.find(c => c.number === chNumber) || null;
+}
+
+// Fungsi ambil chapter berikutnya
+function getNextChapter(current) {
+  const chaptersSortDesc = CHAPTERS.sort((a,b)=>b.number-a.number);
+  const idx = chaptersSortDesc.findIndex(c => c.number === current);
+  return chaptersSortDesc[idx+1] || null;
+}
+
+
+
+// ===============================
+// 3. RENDER CHAPTER KE LAYAR
+// ===============================
+
+function renderChapter(chapter) {
+  const container = document.getElementById("readerContainer");
+
+  const title = document.createElement("div");
+  title.className = "chapter-title";
+  title.textContent = chapter.title;
+
+  const time = document.createElement("div");
+  time.className = "chapter-info";
+  time.textContent = chapter.date;
+
+  container.appendChild(title);
+  container.appendChild(time);
+
+  chapter.pages.forEach(img => {
+    const el = document.createElement("img");
+    el.src = img;
+    el.className = "page-img";
+    el.loading = "lazy";
+    container.appendChild(el);
+  });
+}
+
+
+
+// ===============================
+// 4. LOAD CHAPTER SESUAI URL
+// ===============================
+
+let isLoading = false;
+let nextChapter = null;
+
+function loadFirst() {
+  const chapter = getChapter(currentChapter);
+  if (!chapter) {
+    document.getElementById("headerTitle").textContent = "Chapter tidak ditemukan";
+    return;
+  }
+
+  document.getElementById("headerTitle").textContent = chapter.title;
+
+  renderChapter(chapter);
+  nextChapter = getNextChapter(currentChapter);
+
+  if (!nextChapter) {
+    document.getElementById("loading").innerHTML = "Tidak ada chapter berikutnya.";
+  }
+}
+
+
+
+// ===============================
+// 5. INFINITE SCROLL
+// ===============================
+
+window.addEventListener("scroll", () => {
+  if (isLoading || !nextChapter) return;
+
+  const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 200;
+
+  if (nearBottom) {
+    isLoading = true;
+    document.getElementById("loading").innerHTML = "Memuat...";
+
+    setTimeout(() => {
+      renderChapter(nextChapter);
+
+      currentChapter = nextChapter.number;
+      nextChapter = getNextChapter(currentChapter);
+
+      if (!nextChapter) {
+        document.getElementById("loading").innerHTML = "📘 Semua chapter sudah dibaca.";
+      } else {
+        document.getElementById("loading").innerHTML = "Scroll untuk lanjut...";
+      }
+
+      isLoading = false;
+    }, 500);
+  }
+});
+
+
+// ===============================
+// 6. START
+// ===============================
+loadFirst();
+document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>

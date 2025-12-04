@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Komiku Indo - Baca Komik Online</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Font opsional -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet" />
+
+    <style>
+      :root {
+        --bg-main: #050812;
+        --bg-elevated: #101524;
+        --bg-soft: #151a2b;
+        --accent: #ff4b5c;
+        --accent-soft: rgba(255, 75, 92, 0.15);
+        --text-main: #f7f8ff;
+        --text-muted: #9ea3c6;
+        --border-soft: #252a40;
+        --radius-lg: 18px;
+        --radius-md: 12px;
+        --radius-full: 999px;
+        --shadow-soft: 0 16px 40px rgba(0, 0, 0, 0.6);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont,
+          sans-serif;
+        background: radial-gradient(
+          circle at top,
+          #151c32 0,
+          #050812 45%,
+          #020309 100%
+        );
+        color: var(--text-main);
+        min-height: 100vh;
+        font-size: 14px; /* sedikit kecil, lebih enak buat baca panjang */
+        line-height: 1.6;
+      }
+
+      img {
+        max-width: 100%;
+        display: block;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .page {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 12px 16px 32px;
+      }
+
+      /* ===== HEADER / NAVBAR ===== */
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        backdrop-filter: blur(18px);
+        background: linear-gradient(
+          to bottom,
+          rgba(4, 7, 18, 0.97),
+          rgba(4, 7, 18, 0.9),
+          transparent
+        );
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 16px 8px;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo-mark {
+        width: 30px;
+        height: 30px;
+        border-radius: 12px;
+        background: conic-gradient(
+          from 210deg,
+          #ff4b5c,
+          #ff9a62,
+          #ffe36e,
+          #ff4b5c
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 16px;
+        color: #111119;
+        box-shadow: 0 7px 16px rgba(0, 0, 0, 0.55);
+        flex-shrink: 0;
+      }
+
+      .logo-text-main {
+        font-weight: 600;
+        font-size: 14px;
+        letter-spacing: 0.03em;
+      }
+
+      .logo-text-sub {
+        font-size: 10px;
+        color: var(--text-muted);
+      }
+
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .nav-links {
+        display: none;
+        align-items: center;
+        gap: 10px;
+        font-size: 12px;
+      }
+
+      .nav-link {
+        padding: 5px 11px;
+        border-radius: var(--radius-full);
+        color: var(--text-muted);
+        border: 1px solid transparent;
+        transition: all 0.16s ease-out;
+      }
+
+      .nav-link:hover {
+        color: var(--text-main);
+        border-color: var(--border-soft);
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .nav-link.active {
+        background: var(--accent-soft);
+        color: #ffe7ea;
+        border-color: rgba(255, 75, 92, 0.55);
+      }
+
+      .btn {
+        border-radius: var(--radius-full);
+        padding: 6px 12px;
+        font-size: 12px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        background: transparent;
+        color: var(--text-main);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s ease-out;
+        white-space: nowrap;
+      }
+
+      .btn-outline {
+        border-color: var(--border-soft);
+        color: var(--text-muted);
+      }
+
+      .btn-outline:hover {
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text-main);
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #ff4b5c, #ff9a62);
+        border: none;
+        color: #141218;
+        box-shadow: 0 8px 20px rgba(255, 75, 92, 0.4);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 26px rgba(255, 75, 92, 0.5);
+      }
+
+      /* Hamburger */
+      .hamburger {
+        width: 26px;
+        height: 26px;
+        border-radius: 999px;
+        border: 1px solid var(--border-soft);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 4px;
+        padding: 4px 5px;
+        cursor: pointer;
+        background: rgba(8, 11, 24, 0.9);
+      }
+
+      .hamburger span {
+        height: 2px;
+        border-radius: 999px;
+        background: #e5e7ff;
+        display: block;
+        transition: transform 0.22s ease, opacity 0.18s ease,
+          translate 0.22s ease;
+      }
+
+      .hamburger.active span:nth-child(1) {
+        transform: rotate(45deg);
+        translate: 0 4px;
+      }
+
+      .hamburger.active span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .hamburger.active span:nth-child(3) {
+        transform: rotate(-45deg);
+        translate: 0 -4px;
+      }
+
+      /* Mobile dropdown */
+      .nav-mobile-menu {
+        display: none;
+        flex-direction: column;
+        gap: 6px;
+        margin: 6px 0 10px;
+        padding: 0 16px 4px;
+      }
+
+      .nav-mobile-menu .nav-link {
+        width: 100%;
+        text-align: left;
+      }
+
+      /* ===== HERO ===== */
+      main {
+        flex: 1;
+      }
+
+      .hero {
+        margin-top: 10px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .hero-main {
+        padding: 14px 14px 12px;
+        border-radius: var(--radius-lg);
+        background: radial-gradient(
+          circle at top left,
+          #22283a 0,
+          #131827 55%,
+          #090d17 100%
+        );
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        box-shadow: var(--shadow-soft);
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 10px;
+        padding: 3px 8px;
+        border-radius: var(--radius-full);
+        background: rgba(0, 0, 0, 0.4);
+        color: var(--text-muted);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .badge-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: #18f29b;
+        box-shadow: 0 0 0 4px rgba(24, 242, 155, 0.2);
+      }
+
+      .hero-title {
+        font-size: 18px;
+        margin-top: 8px;
+        margin-bottom: 4px;
+      }
+
+      .hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 6px;
+        margin-bottom: 6px;
+      }
+
+      .hero-meta-pill {
+        padding: 3px 10px;
+        border-radius: var(--radius-full);
+        background: rgba(0, 0, 0, 0.3);
+      }
+
+      .hero-description {
+        font-size: 12px;
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin-bottom: 10px;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 4px;
+      }
+
+      .hero-bottom-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        font-size: 10px;
+        color: var(--text-muted);
+        margin-top: 10px;
+      }
+
+      .hero-bottom-meta span strong {
+        color: #e6e9ff;
+      }
+
+      .hero-cover-wrap {
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        background: radial-gradient(circle at top, #202638 0, #060913 65%);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        box-shadow: var(--shadow-soft);
+      }
+
+      .banner-label {
+        position: absolute;
+        top: 10px;
+        right: 12px;
+        font-size: 9px;
+        padding: 3px 9px;
+        border-radius: var(--radius-full);
+        background: rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .hero-cover-inner {
+        display: grid;
+        grid-template-columns: 0.55fr 0.45fr; /* cover lebih dominan */
+        position: relative;
+        min-height: 260px;
+      }
+
+      .hero-cover-left {
+        padding: 18px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(145deg, #ff4b5c, #ff9a62);
+      }
+
+      .hero-cover-poster img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .hero-cover-poster {
+        width: 100%;
+        max-width: 180px;
+        aspect-ratio: 3 / 4;
+        border-radius: 20px;
+        overflow: hidden;
+        border: 3px solid rgba(255, 255, 255, 0.45);
+        background: #111624;
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.7);
+      }
+
+      .hero-cover-right {
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .hero-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+
+      .hero-tag {
+        font-size: 10px;
+        padding: 3px 8px;
+        border-radius: var(--radius-full);
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        color: var(--text-muted);
+      }
+
+      .hero-mini-chapters {
+        margin-top: 8px;
+        border-top: 1px dashed rgba(255, 255, 255, 0.08);
+        padding-top: 8px;
+      }
+
+      .hero-mini-chapter-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 10px;
+        color: var(--text-muted);
+        margin-bottom: 3px;
+      }
+
+      .hero-mini-chapter-row span:first-child {
+        color: #edf0ff;
+      }
+
+      .hero-note {
+        font-size: 10px;
+        color: var(--text-muted);
+        margin-top: 10px;
+      }
+
+      /* ===== SECTION & FILTERS ===== */
+      .section {
+        margin-top: 28px;
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .section-title {
+        font-size: 15px;
+      }
+
+      .section-subtitle {
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+
+      .filters-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 14px;
+      }
+
+      .search-box {
+        flex: 1;
+        min-width: 180px;
+        position: relative;
+      }
+
+      .search-icon {
+        position: absolute;
+        top: 50%;
+        left: 10px;
+        transform: translateY(-50%);
+        font-size: 12px;
+        color: #6b7280;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 8px 11px 8px 28px;
+        border-radius: var(--radius-full);
+        border: 1px solid var(--border-soft);
+        background: rgba(7, 10, 26, 0.95);
+        color: var(--text-main);
+        font-size: 12px;
+        outline: none;
+        transition: border-color 0.16s ease, box-shadow 0.16s ease,
+          background 0.16s ease;
+      }
+
+      .search-input::placeholder {
+        color: #6b7280;
+      }
+
+      .search-input:focus {
+        border-color: rgba(255, 75, 92, 0.8);
+        box-shadow: 0 0 0 1px rgba(255, 75, 92, 0.4);
+        background: rgba(9, 13, 33, 0.98);
+      }
+
+      .chip-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .chip {
+        font-size: 11px;
+        padding: 4px 9px;
+        border-radius: var(--radius-full);
+        border: 1px solid var(--border-soft);
+        color: var(--text-muted);
+        background: rgba(7, 9, 20, 0.7);
+        cursor: pointer;
+        transition: all 0.16s ease-out;
+      }
+
+      .chip:hover {
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text-main);
+      }
+
+      .chip.active {
+        background: var(--accent-soft);
+        border-color: rgba(255, 75, 92, 0.8);
+        color: #ffe9ec;
+      }
+
+      /* ===== GRID KOMIK ===== */
+      .comic-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .comic-card {
+        background: radial-gradient(
+          circle at top,
+          #20263b 0,
+          #101524 52%,
+          #090d17 100%
+        );
+
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        display: flex;
+        flex-direction: column;
+        cursor: pointer;
+        transition: transform 0.16s ease-out, box-shadow 0.16s ease-out,
+          border-color 0.16s ease-out;
+      }
+
+      .comic-cover-inner img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .comic-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+
+      .comic-cover {
+        position: relative;
+        aspect-ratio: 3 / 4;
+        overflow: hidden;
+      }
+
+      .comic-cover-inner {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #15192b, #252d46);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.65);
+        text-align: center;
+        padding: 4px;
+      }
+
+      .comic-badge {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        font-size: 9px;
+        padding: 2px 7px;
+        border-radius: var(--radius-full);
+        background: rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(4px);
+      }
+
+      .comic-rating {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        font-size: 10px;
+        padding: 2px 7px;
+        border-radius: var(--radius-full);
+        background: rgba(0, 0, 0, 0.75);
+        color: #ffd952;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+      }
+
+      .comic-body {
+        padding: 7px 7px 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+
+      .comic-title {
+        font-size: 11.5px;
+        font-weight: 500;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+      }
+
+      .comic-genre {
+        font-size: 10px;
+        color: #c0c5e5;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+        overflow: hidden;
+      }
+
+      .comic-meta-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 9.5px;
+        color: var(--text-muted);
+      }
+
+      .empty-state {
+        margin-top: 14px;
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+
+      footer {
+        padding: 14px 16px 18px;
+        margin-top: auto;
+        font-size: 10.5px;
+        color: var(--text-muted);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        background: radial-gradient(
+          circle at top,
+          rgba(10, 14, 30, 0.95),
+          rgba(3, 5, 14, 0.97)
+        );
+      }
+
+      .footer-inner {
+        max-width: 1120px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      /* ===== BREAKPOINTS ===== */
+      @media (min-width: 640px) {
+        .hero {
+          grid-template-columns: 1.2fr 0.8fr; /* teks lebih lebar dikit, gambar sedikit lebih kecil */
+          align-items: stretch;
+        }
+
+        .hero-main {
+          padding: 16px 20px 14px;
+          border-radius: var(--radius-lg);
+          background: radial-gradient(
+            circle at top left,
+            #232a40 0,
+            #14192a 55%,
+            #090d17 100%
+          );
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          box-shadow: var(--shadow-soft);
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .hero-title {
+          font-size: 20px;
+        }
+
+        .comic-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 12px;
+        }
+      }
+
+      @media (min-width: 840px) {
+        .nav-links {
+          display: flex;
+        }
+
+        .hamburger {
+          display: none;
+        }
+
+        .nav-mobile-menu {
+          display: none !important;
+        }
+
+        .hero {
+          margin-top: 16px;
+          gap: 18px;
+        }
+
+        .hero-main {
+          padding: 18px 22px 16px;
+        }
+
+        .hero-title {
+          font-size: 22px;
+        }
+
+        .hero-description {
+          font-size: 13px;
+          color: var(--text-muted);
+          line-height: 1.7;
+          margin-top: 4px;
+          margin-bottom: 10px;
+
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 7; /* batasi 7 baris, biar nggak makan 1 layar sendiri */
+          overflow: hidden;
+        }
+
+        .comic-grid {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+      }
+
+      @media (min-width: 1040px) {
+        .comic-grid {
+          grid-template-columns: repeat(5, minmax(0, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <!-- HEADER -->
+      <header>
+        <div class="container">
+          <nav class="nav">
+            <div class="logo">
+              <div class="logo-mark">K</div>
+              <div>
+                <div class="logo-text-main">Komiku Indo</div>
+                <div class="logo-text-sub">Baca komik & manhwa gratis</div>
+              </div>
+            </div>
+
+            <div class="nav-right">
+              <div class="nav-links">
+                <a href="#" class="nav-link active">Beranda</a>
+                <a href="#" class="nav-link">Terbaru</a>
+                <a href="#" class="nav-link">Populer</a>
+                <a href="#" class="nav-link">Genre</a>
+              </div>
+
+              <button class="btn btn-outline" type="button">🔖 Bookmark</button>
+              <button class="btn btn-primary" type="button">Masuk</button>
+
+              <button
+                class="hamburger"
+                id="hamburgerBtn"
+                type="button"
+                aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+              </button>
+            </div>
+          </nav>
+
+          <!-- Mobile nav menu -->
+          <div class="nav-mobile-menu" id="navMobileMenu">
+            <a href="#" class="nav-link active">Beranda</a>
+            <a href="#" class="nav-link">Terbaru</a>
+            <a href="#" class="nav-link">Populer</a>
+            <a href="#" class="nav-link">Genre</a>
+          </div>
+        </div>
+      </header>
+
+      <!-- MAIN -->
+      <main class="container">
+        <!-- HERO -->
+        <section class="hero" id="heroSection">
+          <!-- Konten hero akan diisi via JS (dinamis) -->
+        </section>
+
+        <!-- SECTION POPULER -->
+        <section class="section">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">Komik Populer</h2>
+              <p class="section-subtitle">
+                Cari judul atau filter genre untuk mulai baca.
+              </p>
+            </div>
+          </div>
+
+          <div class="filters-row">
+            <div class="search-box">
+              <span class="search-icon">🔍</span>
+              <input
+                id="searchInput"
+                type="text"
+                class="search-input"
+                placeholder="Cari komik (contoh: solo, hunter, academy...)" />
+            </div>
+
+            <div class="chip-group" id="genreChips">
+              <div class="chip active" data-genre="all">Semua</div>
+              <div class="chip" data-genre="action">Action</div>
+              <div class="chip" data-genre="fantasy">Fantasy</div>
+              <div class="chip" data-genre="romance">Romance</div>
+              <div class="chip" data-genre="school">School</div>
+              <div class="chip" data-genre="comedy">Comedy</div>
+            </div>
+          </div>
+
+          <div id="comicGrid" class="comic-grid">
+            <!-- Card komik di-render oleh JS -->
+          </div>
+
+          <div id="emptyState" class="empty-state" style="display: none">
+            Tidak ada komik yang cocok dengan pencarian / genre yang dipilih.
+          </div>
+        </section>
+      </main>
+
+      <!-- FOOTER -->
+      <footer>
+        <div class="footer-inner">
+          <span>© <span id="year"></span> Komiku Indo.</span>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      // ===== DATA DUMMY DINAMIS =====
+      const comics = [
+        {
+          id: 1,
+          title: "Solo Leveling",
+          slug: "solo-leveling",
+          genres: ["action", "fantasy", "adventure"],
+          banner: "Pilihan Editor",
+          rating: 4.61,
+          latestChapter: "Ch. 180",
+          views: "1.2M",
+          status: "Completed",
+          schedule: "No Update",
+          heroHighlight: true,
+          cover: "gambarcover/sololeveling.jpg",
+          lastUpdates: [
+            { chapter: "Ch. 180 – Pertarungan Terakhir", time: "2 jam lalu" },
+          ],
+          description:
+            "10 tahun yang lalu, setelah “Gerbang” yang menghubungkan dunia nyata dengan dunia monster terbuka... ",
+        },
+        {
+          id: 2,
+          title: "Solo Leveling: Rebirth",
+          slug: "solo-leveling-rebirth",
+          genres: ["action", "fantasy"],
+          banner: "Baru",
+          rating: 4.8,
+          latestChapter: "Ch. 12",
+          views: "620K",
+        },
+        {
+          id: 3,
+          title: "My Overpowered Academy Life",
+          slug: "my-op-academy-life",
+          genres: ["school", "comedy", "fantasy"],
+          banner: "Populer",
+          rating: 4.7,
+          latestChapter: "Ch. 33",
+          views: "540K",
+        },
+        {
+          id: 4,
+          title: "The Villainess Only Wants Coffee",
+          slug: "villainess-coffee",
+          genres: ["romance", "comedy"],
+          banner: "Romance",
+          rating: 4.6,
+          latestChapter: "Ch. 27",
+          views: "410K",
+        },
+        {
+          id: 5,
+          title: "Dungeon Cleaner",
+          slug: "dungeon-cleaner",
+          genres: ["action", "comedy"],
+          banner: "Updated",
+          rating: 4.5,
+          latestChapter: "Ch. 19",
+          views: "310K",
+        },
+        {
+          id: 6,
+          title: "Love Script: Beta Reader",
+          slug: "love-script-beta-reader",
+          genres: ["romance", "school"],
+          banner: "Romance",
+          rating: 4.4,
+          latestChapter: "Ch. 14",
+          views: "210K",
+        },
+        {
+          id: 7,
+          title: "Infinite Retry System",
+          slug: "infinite-retry-system",
+          genres: ["action", "fantasy"],
+          banner: "Ongoing",
+          rating: 4.8,
+          latestChapter: "Ch. 38",
+          views: "880K",
+        },
+        {
+          id: 8,
+          title: "Classroom of Shadows",
+          slug: "classroom-of-shadows",
+          genres: ["school", "action"],
+          banner: "Populer",
+          rating: 4.6,
+          latestChapter: "Ch. 22",
+          views: "470K",
+        },
+        {
+          id: 9,
+          title: "Romantic Error 404",
+          slug: "romantic-error-404",
+          genres: ["romance", "comedy"],
+          banner: "Baru",
+          rating: 4.3,
+          latestChapter: "Ch. 8",
+          views: "150K",
+        },
+        {
+          id: 10,
+          title: "Another World Salaryman",
+          slug: "another-world-salaryman",
+          genres: ["fantasy", "comedy"],
+          banner: "Isekai",
+          rating: 4.5,
+          latestChapter: "Ch. 17",
+          views: "260K",
+        },
+      ];
+
+      // ===== STATE & ELEMENTS =====
+      const state = {
+        search: "",
+        genre: "all",
+      };
+
+      const heroSection = document.getElementById("heroSection");
+      const comicGrid = document.getElementById("comicGrid");
+      const emptyState = document.getElementById("emptyState");
+      const searchInput = document.getElementById("searchInput");
+      const genreChips = document.getElementById("genreChips");
+      const yearSpan = document.getElementById("year");
+      const hamburgerBtn = document.getElementById("hamburgerBtn");
+      const navMobileMenu = document.getElementById("navMobileMenu");
+
+      // ===== RENDER HERO DINAMIS (ambil dari komik highlight) =====
+      function renderHero() {
+        const heroComic = comics.find((c) => c.heroHighlight) || comics[0];
+
+        const tags = [...heroComic.genres, "Full Color", "Trending"];
+
+        const heroPoster = heroComic.cover
+          ? `<img src="${heroComic.cover}" alt="Cover ${heroComic.title}" />`
+          : `COVER<br/>${heroComic.title.slice(0, 22)}`;
+
+        const heroHtml = `
+    <article class="hero-main">
+      <div>
+        <div class="badge">
+          <span class="badge-dot"></span>
+          <span>Update hari ini • ${heroComic.latestChapter}</span>
+        </div>
+
+        <h1 class="hero-title">${heroComic.title}</h1>
+
+        <div class="hero-meta">
+          <span>⭐ ${heroComic.rating.toFixed(1)} rating</span>
+          <span class="hero-meta-pill">${heroComic.genres.join(" • ")}</span>
+          <span>🔥 ${heroComic.views} views</span>
+        </div>
+
+        <p class="hero-description">
+          ${heroComic.description}
+        </p>
+      </div>
+
+      <div>
+        <div class="hero-actions">
+          <button class="btn btn-primary" type="button" id="heroReadBtn">
+            ▶️ Baca dari awal
+          </button>
+          <button class="btn btn-outline" type="button">
+            ➕ Tambah ke favorit
+          </button>
+        </div>
+        <div class="hero-bottom-meta">
+          <span>Chapter terakhir: <strong>${
+            heroComic.latestChapter
+          }</strong></span>
+          <span>Status: <strong>${heroComic.status}</strong></span>
+          <span>Update: <strong>${heroComic.schedule}</strong></span>
+        </div>
+      </div>
+    </article>
+
+    <article class="hero-cover-wrap">
+      <div class="hero-cover-inner">
+        <div class="hero-cover-left">
+          <div class="hero-cover-poster">
+            ${heroPoster}
+          </div>
+        </div>
+        <div class="hero-cover-right">
+          <div>
+            <div class="hero-tags">
+              ${tags
+                .map((tag) => `<span class="hero-tag">${tag}</span>`)
+                .join("")}
+            </div>
+            <div class="hero-mini-chapters">
+              ${heroComic.lastUpdates
+                .map(
+                  (row) => `
+                  <div class="hero-mini-chapter-row">
+                    <span>${row.chapter}</span>
+                    <span>${row.time}</span>
+                  </div>
+                `
+                )
+                .join("")}
+            </div>
+          </div>
+          <p class="hero-note">
+            *Tampilan sampul hanya ilustrasi. Konten asli muncul saat masuk ke halaman baca.
+          </p>
+        </div>
+      </div>
+      <div class="banner-label">${heroComic.banner}</div>
+    </article>
+  `;
+
+        heroSection.innerHTML = heroHtml;
+
+        const heroReadBtn = document.getElementById("heroReadBtn");
+        if (heroReadBtn) {
+          heroReadBtn.addEventListener("click", () => {
+            const chapterNumber =
+              heroComic.firstChapter ||
+              parseInt(heroComic.latestChapter.replace(/\D/g, ""), 10);
+
+           
+            window.location.href =
+              "reader.html/?series=" + heroComic.slug + "&chapter=" + chapterNumber;
+          });
+        }
+      }
+
+      // ===== RENDER LIST KOMIK =====
+      function renderComics() {
+        const searchLower = state.search.toLowerCase();
+        const genreFilter = state.genre;
+
+        const filtered = comics.filter((comic) => {
+          const matchSearch =
+            !searchLower || comic.title.toLowerCase().includes(searchLower);
+
+          const matchGenre =
+            genreFilter === "all" || comic.genres.includes(genreFilter);
+
+          return matchSearch && matchGenre;
+        });
+
+        comicGrid.innerHTML = "";
+
+        if (!filtered.length) {
+          emptyState.style.display = "block";
+          return;
+        } else {
+          emptyState.style.display = "none";
+        }
+
+        filtered.forEach((comic) => {
+          const genresText = comic.genres.join(" • ");
+
+          const card = document.createElement("article");
+          card.className = "comic-card";
+          card.innerHTML = `
+                      <div class="comic-cover">
+                          <div class="comic-cover-inner">
+                              COVER<br />${comic.title.slice(0, 22)}
+                          </div>
+                          <div class="comic-badge">${comic.banner}</div>
+                          <div class="comic-rating">
+                              ★ ${comic.rating.toFixed(1)}
+                          </div>
+                      </div>
+                      <div class="comic-body">
+                          <h3 class="comic-title">${comic.title}</h3>
+                          <div class="comic-genre">${genresText}</div>
+                          <div class="comic-meta-row">
+                              <span>${comic.latestChapter}</span>
+                              <span>${comic.views} views</span>
+                          </div>
+                      </div>
+                  `;
+
+          card.addEventListener("click", () => {
+            alert(
+              "Klik komik: " +
+                comic.title +
+                "\n\nDi production, arahkan ke halaman detail komik:\n/comics/" +
+                comic.slug
+            );
+          });
+
+          comicGrid.appendChild(card);
+        });
+      }
+
+      // ===== EVENT: SEARCH =====
+      searchInput.addEventListener("input", (e) => {
+        state.search = e.target.value;
+        renderComics();
+      });
+
+      // ===== EVENT: GENRE CHIPS =====
+      genreChips.addEventListener("click", (e) => {
+        const chip = e.target.closest(".chip");
+        if (!chip) return;
+
+        const selectedGenre = chip.getAttribute("data-genre");
+        state.genre = selectedGenre;
+
+        document.querySelectorAll(".chip").forEach((c) => {
+          c.classList.toggle("active", c === chip);
+        });
+
+        renderComics();
+      });
+
+      // ===== NAV MOBILE (HAMBURGER) =====
+      hamburgerBtn.addEventListener("click", () => {
+        const isOpen = navMobileMenu.style.display === "flex";
+        if (isOpen) {
+          navMobileMenu.style.display = "none";
+        } else {
+          navMobileMenu.style.display = "flex";
+        }
+        hamburgerBtn.classList.toggle("active", !isOpen);
+      });
+
+      // Tutup menu mobile kalau resize ke layar besar
+      window.addEventListener("resize", () => {
+        if (window.innerWidth >= 840) {
+          navMobileMenu.style.display = "none";
+          hamburgerBtn.classList.remove("active");
+        }
+      });
+
+      // ===== SET TAHUN FOOTER =====
+      yearSpan.textContent = new Date().getFullYear();
+
+      // ===== INITIAL RENDER =====
+      renderHero();
+      renderComics();
+    </script>
+  </body>
+</html>
