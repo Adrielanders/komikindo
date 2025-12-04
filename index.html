@@ -1094,13 +1094,13 @@
         const heroReadBtn = document.getElementById("heroReadBtn");
         if (heroReadBtn) {
           heroReadBtn.addEventListener("click", () => {
-            const chapterNumber =
-              heroComic.firstChapter ||
-              parseInt(heroComic.latestChapter.replace(/\D/g, ""), 10);
+            const chapterNumber = 1;
 
-           
             window.location.href =
-              "reader.html/?series=" + heroComic.slug + "&chapter=" + chapterNumber;
+              "reader.html/?series=" +
+              heroComic.slug +
+              "&chapter=" +
+              chapterNumber;
           });
         }
       }
