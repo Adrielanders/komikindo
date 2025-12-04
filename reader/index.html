@@ -1,237 +1,210 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-<meta charset="UTF-8" />
-<title>Reader - Komiku Indo</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<style>
-  body {
-    margin: 0;
-    background: #050812;
-    color: white;
-    font-family: Arial, sans-serif;
-  }
-
-  header {
-    position: sticky;
-    top: 0;
-    padding: 10px 16px;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(12px);
-    z-index: 20;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-  }
-
-  .title {
-    font-size: 14px;
-    opacity: .7;
-  }
-
-  .reader-container {
-    width: 100%;
-    max-width: 760px;
-    margin: auto;
-    padding: 20px 0;
-  }
-
-  .chapter-title {
-    font-size: 16px;
-    margin: 12px 0 4px;
-    opacity: .9;
-  }
-
-  .chapter-info {
-    font-size: 12px;
-    color: #95a0c3;
-    margin-bottom: 10px;
-  }
-
-  .page-img {
-    width: 100%;
-    margin-bottom: 10px;
-    background: #0f1423;
-    border-radius: 6px;
-  }
-
-  .loading {
-    text-align: center;
-    padding: 20px;
-    font-size: 12px;
-    color: #8c96b8;
-  }
-</style>
-</head>
-<body>
-
-<header>
-  <div class="title" id="headerTitle">Memuat...</div>
-</header>
-
-<div class="reader-container" id="readerContainer"></div>
-<div class="loading" id="loading">Memuat chapter...</div>
-
-<script>
-// ===============================
-// 1. BACA PARAMETER URL
-// ===============================
-const params = new URLSearchParams(window.location.search);
-const series = params.get("series") || "solo-leveling";
-let currentChapter = parseInt(params.get("chapter") || "1", 10);
-
-if (Number.isNaN(currentChapter) || currentChapter < 1) {
-  currentChapter = 1;
-}
-
-// path dasar dari /reader/index.html ke folder manhwa
-const BASE_PATH = "../manhwa/";
-
-// maksimum tebakan halaman per chapter (aman gede, misal 300)
-const MAX_PAGES_PER_CHAPTER = 300;
-
-const readerContainer = document.getElementById("readerContainer");
-const loadingEl = document.getElementById("loading");
-const headerTitle = document.getElementById("headerTitle");
-
-// ===============================
-// 2. FUNGSI CEK & LOAD GAMBAR
-// ===============================
-function loadOnePageImage(src, alt) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.loading = "lazy";
-    img.alt = alt;
-    img.className = "page-img";
-    img.onload = () => resolve({ ok: true, img });
-    img.onerror = () => resolve({ ok: false });
-    img.src = src;
-  });
-}
-
-// load satu chapter, berhenti saat page pertama yang gagal
-async function loadChapter(seriesSlug, chapterNumber) {
-  let loadedAny = false;
-
-  const block = document.createElement("section");
-  block.className = "chapter-block";
-
-  // header chapter
-  const titleDiv = document.createElement("div");
-  titleDiv.className = "chapter-title";
-  titleDiv.textContent = `Chapter ${chapterNumber}`;
-  const infoDiv = document.createElement("div");
-  infoDiv.className = "chapter-info";
-  infoDiv.textContent = seriesSlug.replace(/-/g, " ");
-
-  block.appendChild(titleDiv);
-  block.appendChild(infoDiv);
-
-  // halaman
-  for (let page = 1; page <= MAX_PAGES_PER_CHAPTER; page++) {
-    const pageStr = String(page).padStart(3, "0");
-    const src =
-      `${BASE_PATH}${seriesSlug}/${chapterNumber}/${pageStr}.jpg`;
-    const alt = `${seriesSlug} ch.${chapterNumber} – page ${page}`;
-
-    const result = await loadOnePageImage(src, alt);
-
-    if (!result.ok) {
-      // kalau page pertama saja gagal → chapter ini tidak ada
-      if (!loadedAny) {
-        return false;
+  <head>
+    <meta charset="UTF-8" />
+    <title>Reader - Komiku Indo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        margin: 0;
+        background: #050812;
+        color: white;
+        font-family: Arial, sans-serif;
       }
-      // kalau sudah pernah load lalu gagal → artinya halaman sudah habis
-      break;
-    }
 
-    loadedAny = true;
+      header {
+        position: sticky;
+        top: 0;
+        padding: 10px 16px;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(12px);
+        z-index: 20;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
 
-    const wrap = document.createElement("div");
-    wrap.className = "page-wrap";
-    wrap.appendChild(result.img);
-    block.appendChild(wrap);
-  }
+      .title {
+        font-size: 14px;
+        opacity: 0.7;
+      }
 
-  if (!loadedAny) {
-    return false;
-  }
+      .reader-container {
+        width: 100%;
+        max-width: 760px;
+        margin: auto;
+        padding: 20px 0;
+      }
 
-  const footer = document.createElement("div");
-  footer.className = "chapter-footer";
-  footer.textContent =
-    `Selesai chapter ${chapterNumber}. Scroll terus untuk lanjut chapter berikutnya.`;
-  block.appendChild(footer);
+      .chapter-title {
+        font-size: 16px;
+        margin: 12px 0 4px;
+        opacity: 0.9;
+      }
 
-  readerContainer.appendChild(block);
+      .chapter-info {
+        font-size: 12px;
+        color: #95a0c3;
+        margin-bottom: 10px;
+      }
 
-  // set judul di header hanya untuk chapter pertama
-  if (readerContainer.children.length === 1 && headerTitle) {
-    headerTitle.textContent =
-      seriesSlug.replace(/-/g, " ") + " • Chapter " + chapterNumber;
-  }
+      .page-img {
+        width: 100%;
+        margin-bottom: 10px;
+        background: #0f1423;
+        border-radius: 6px;
+      }
 
-  return true;
-}
+      .loading {
+        text-align: center;
+        padding: 20px;
+        font-size: 12px;
+        color: #8c96b8;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="title" id="headerTitle">Memuat...</div>
+    </header>
 
-// ===============================
-// 3. INFINITE SCROLL
-// ===============================
-let isLoading = false;
-let finishedAll = false;
+    <div class="reader-container" id="readerContainer"></div>
+    <div class="loading" id="loading">Memuat chapter...</div>
 
-async function loadNextChapter() {
-  if (isLoading || finishedAll) return;
+    <script>
+      const params = new URLSearchParams(window.location.search);
 
-  isLoading = true;
-  loadingEl.innerHTML =
-    `<span class="dot"></span> Memuat chapter ${currentChapter}...`;
+      const series = params.get("series") || "solo-leveling";
+      let currentChapter = parseInt(params.get("chapter") || "1", 10);
+      if (Number.isNaN(currentChapter) || currentChapter < 1)
+        currentChapter = 1;
 
-  const ok = await loadChapter(series, currentChapter);
+      // dari reader/ ke folder manhwa/
+      const BASE_PATH = "../manhwa/";
 
-  if (!ok) {
-    // kalau chapter pertama yang diminta saja tidak ada
-    if (readerContainer.children.length === 0) {
-      loadingEl.textContent =
-        `📚 Chapter ${currentChapter} tidak ditemukan. Cek nama folder & file gambar.`;
-    } else {
-      loadingEl.textContent = "📚 Tidak ada chapter lagi.";
-    }
-    finishedAll = true;
-    isLoading = false;
-    return;
-  }
+      const readerContainer = document.getElementById("readerContainer");
+      const loadingEl = document.getElementById("loading");
+      const headerTitle = document.getElementById("headerTitle");
 
-  // siapkan untuk chapter selanjutnya
-  currentChapter += 1;
+      let isLoading = false;
+      let finishedAll = false;
 
-  // cek secara cepat apakah chapter berikutnya kemungkinan ada
-  loadingEl.innerHTML =
-    '<span class="dot"></span> Scroll ke bawah untuk lanjut...';
+      // Load satu halaman gambar
+      function loadPage(src, alt) {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve({ ok: true, img });
+          img.onerror = () => resolve({ ok: false });
+          img.src = src;
+          img.alt = alt;
+          img.className = "page-img";
+          img.loading = "lazy";
+        });
+      }
 
-  isLoading = false;
-}
+      // Main loader untuk 1 chapter → otomatis naik ke chapter berikutnya
+      async function loadChapter(chapterNumber) {
+        const block = document.createElement("section");
+        block.className = "chapter-block";
 
-// trigger pertama: load chapter dari URL
-loadNextChapter();
+        const title = document.createElement("div");
+        title.className = "chapter-title";
+        title.textContent = `Chapter ${chapterNumber}`;
+        const info = document.createElement("div");
+        info.className = "chapter-info";
+        info.textContent = series.replace(/-/g, " ");
+        block.append(title, info);
 
-// trigger berikutnya: saat near bottom
-window.addEventListener("scroll", () => {
-  if (finishedAll || isLoading) return;
+        // =============================
+        // 1. Generate kandidat file 01.jpg → 200.jpg
+        // =============================
+        const MAX = 300; // batas aman
+        let urls = [];
+        for (let i = 1; i <= MAX; i++) {
+          let pageStr = i < 10 ? "0" + i : i.toString();
+          urls.push({
+            src: `${BASE_PATH}${series}/${chapterNumber}/${pageStr}.jpg`,
+            alt: `${series} ch${chapterNumber} p${i}`,
+          });
+        }
 
-  const nearBottom =
-    window.innerHeight + window.scrollY >= document.body.offsetHeight - 250;
+        // =============================
+        // 2. Load semua gambar paralel (lebih cepat)
+        // =============================
+        const results = await Promise.all(
+          urls.map((u) => loadPage(u.src, u.alt))
+        );
 
-  if (nearBottom) {
-    loadNextChapter();
-  }
-});
+        let foundAny = false;
 
-// tahun footer (kalau ada span#year)
-const yearEl = document.getElementById("year");
-if (yearEl) {
-  yearEl.textContent = new Date().getFullYear();
-}
-</script>
+        for (let r of results) {
+          if (!r.ok) {
+            if (!foundAny) return false; // folder tidak ada
+            break; // halaman selesai
+          }
 
+          foundAny = true;
 
-</body>
+          const wrap = document.createElement("div");
+          wrap.className = "page-wrap";
+          wrap.appendChild(r.img);
+          block.appendChild(wrap);
+        }
+
+        if (!foundAny) return false;
+
+        // footer
+        const footer = document.createElement("div");
+        footer.className = "chapter-footer";
+        footer.textContent = `Selesai chapter ${chapterNumber}. Scroll untuk lanjut...`;
+        block.appendChild(footer);
+
+        readerContainer.appendChild(block);
+
+        // update judul header
+        if (readerContainer.children.length === 1) {
+          headerTitle.textContent =
+            series.replace(/-/g, " ") + " • Chapter " + chapterNumber;
+        }
+
+        return true;
+      }
+
+      // Auto load chapter pertama
+      async function loadNextChapter() {
+        if (finishedAll || isLoading) return;
+
+        isLoading = true;
+        loadingEl.textContent = `Memuat chapter ${currentChapter}...`;
+
+        const ok = await loadChapter(currentChapter);
+
+        if (!ok) {
+          if (readerContainer.children.length === 0) {
+            loadingEl.textContent = `❌ Chapter ${currentChapter} tidak ditemukan.`;
+          } else {
+            loadingEl.textContent = "📚 Tidak ada chapter lagi.";
+          }
+          finishedAll = true;
+          return;
+        }
+
+        currentChapter++;
+        loadingEl.textContent = "Scroll untuk lanjut...";
+        isLoading = false;
+      }
+
+      // Start
+      loadNextChapter();
+
+      // Infinite scroll
+      window.addEventListener("scroll", () => {
+        if (finishedAll || isLoading) return;
+
+        const nearBottom =
+          window.innerHeight + window.scrollY >=
+          document.body.offsetHeight - 300;
+
+        if (nearBottom) loadNextChapter();
+      });
+    </script>
+  </body>
 </html>
