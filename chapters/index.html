@@ -366,8 +366,7 @@
         const foundChapters = [];
         const MAX_CHAPTER = 500;
         let missStreak = 0;
-        const MISS_LIMIT = 30; // setelah 30 miss beruntun, anggap habis
-
+        const MISS_LIMIT = 30; 
         for (let ch = 1; ch <= MAX_CHAPTER; ch++) {
           const exists = await checkChapterExists(series, ch);
           if (exists) {
