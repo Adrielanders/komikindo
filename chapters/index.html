@@ -386,33 +386,27 @@
       async function detectChapters() {
         if (!series) return;
 
-        // 1. coba pakai cache dulu biar halaman cepat muncul
-        const cached = loadChapterCache();
-        if (cached && cached.length) {
-          renderChapterList(cached); // render langsung dari cache
-        }
+        try {
+          const res = await fetch("../manhwa/manifest.json");
+          const data = await res.json();
 
-        // 2. baru lakukan scan beneran untuk update (bisa agak lama, tapi di belakang)
-        const fresh = await scanChapters();
+          const chapters = data[series] || [];
 
-        // kalau scan gagal / kosong, dan tidak ada cache → tampilkan pesan kosong
-        if ((!fresh || !fresh.length) && !cached) {
           loadingEl.style.display = "none";
-          emptyEl.style.display = "block";
-          emptyEl.textContent =
-            "Belum ditemukan chapter untuk series ini. Pastikan struktur folder manhwa/" +
-            series +
-            "/<nomor_chapter>/01.jpg sudah benar.";
-          return;
-        }
 
-        // kalau hasil fresh sama dengan cache, nggak perlu re-render
-        if (fresh && fresh.length) {
-          saveChapterCache(fresh);
-          renderChapterList(fresh); // render pakai data terbaru
-        }
+          if (!chapters.length) {
+            emptyEl.style.display = "block";
+            emptyEl.textContent =
+              "Series ini tidak ditemukan di manifest.json.";
+            return;
+          }
 
-        loadingEl.style.display = "none";
+          renderChapterList(chapters);
+        } catch (err) {
+          loadingEl.style.display = "none";
+          errorEl.style.display = "block";
+          errorEl.textContent = "Gagal membaca manifest.json";
+        }
       }
 
       detectChapters();
