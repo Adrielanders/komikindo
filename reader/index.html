@@ -122,12 +122,8 @@
 
     <!-- Navigation buttons -->
     <div class="nav-chapter">
-      <button class="nav-btn" id="prevBtn">
-        ⬅ Chapter Sebelumnya
-      </button>
-      <button class="nav-btn" id="nextBtn">
-        Chapter Selanjutnya ➜
-      </button>
+      <button class="nav-btn" id="prevBtn">⬅ Chapter Sebelumnya</button>
+      <button class="nav-btn" id="nextBtn">Chapter Selanjutnya ➜</button>
     </div>
 
     <script>
@@ -135,7 +131,8 @@
 
       const series = params.get("series") || "solo-leveling";
       let currentChapter = parseInt(params.get("chapter") || "1", 10);
-      if (Number.isNaN(currentChapter) || currentChapter < 1) currentChapter = 1;
+      if (Number.isNaN(currentChapter) || currentChapter < 1)
+        currentChapter = 1;
 
       const BASE_PATH = "../manhwa/";
 
@@ -173,33 +170,35 @@
         info.textContent = series.replace(/-/g, " ");
         block.append(title, info);
 
-        const MAX = 300; // batas maksimum tebakan halaman
-        const urls = [];
-        for (let i = 1; i <= MAX; i++) {
-          const pageStr = i < 10 ? "0" + i : i.toString();
-          urls.push({
-            src: `${BASE_PATH}${series}/${chapterNumber}/${pageStr}.jpg`,
-            alt: `${series} ch${chapterNumber} p${i}`,
-          });
-        }
-
-        // load semua kandidat paralel
-        const results = await Promise.all(
-          urls.map((u) => loadPage(u.src, u.alt))
-        );
-
+        let page = 1;
         let foundAny = false;
-        for (const r of results) {
-          if (!r.ok) {
-            if (!foundAny) return false; // folder/chapter gak ada
-            break; // sudah ada page minimal satu, ini berarti habis
+
+        while (true) {
+          // nama file: 01.jpg, 02.jpg, ..., 10.jpg, 11.jpg, dst
+          const pageStr = page < 10 ? "0" + page : page.toString();
+          const src = `${BASE_PATH}${series}/${chapterNumber}/${pageStr}.jpg`;
+          const alt = `${series} ch${chapterNumber} p${page}`;
+
+          const result = await loadPage(src, alt);
+
+          if (!result.ok) {
+            // kalau page pertama aja gak ada → chapter gak ada
+            if (!foundAny) return false;
+            // kalau sudah sempat ada yg ke-load → berarti halaman sudah habis
+            break;
           }
 
           foundAny = true;
+
           const wrap = document.createElement("div");
           wrap.className = "page-wrap";
-          wrap.appendChild(r.img);
+          wrap.appendChild(result.img);
           block.appendChild(wrap);
+
+          page++;
+
+          // guard biar gak infinite loop kalau ada error aneh
+          if (page > 500) break;
         }
 
         if (!foundAny) return false;
@@ -219,7 +218,7 @@
 
         return true;
       }
-
+      
       // init: load chapter dari URL
       (async function init() {
         loadingEl.textContent = `Memuat chapter ${currentChapter}...`;
