@@ -181,9 +181,8 @@
           const result = await loadPage(src, alt);
 
           if (!result.ok) {
-
             if (!foundAny) return false;
-   
+
             break;
           }
 
@@ -246,9 +245,10 @@
           encodeURIComponent(series) +
           "&chapter=" +
           encodeURIComponent(prev);
-        window.location.search = url;
-      });
 
+        window.location.search = url;
+        window.location.reload(); // 🔥 FORCE RELOAD
+      });
       nextBtn.addEventListener("click", () => {
         const next = currentChapter + 1;
         const url =
@@ -256,7 +256,9 @@
           encodeURIComponent(series) +
           "&chapter=" +
           encodeURIComponent(next);
+
         window.location.search = url;
+        window.location.reload(); // 🔥 FORCE RELOAD
       });
     </script>
   </body>
