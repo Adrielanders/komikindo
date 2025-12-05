@@ -154,7 +154,8 @@
         });
       }
 
-      // render 1 chapter (semua gambar dalam folder)
+
+      // render 1 chapter (PARALEL, SUPER CEPAT)
       async function loadChapter(chapterNumber) {
         readerContainer.innerHTML = ""; // bersihkan isi sebelumnya
 
@@ -169,34 +170,35 @@
         info.textContent = series.replace(/-/g, " ");
         block.append(title, info);
 
-        let page = 1;
+        // Generate URL gambar 01–300
+        const MAX = 300;
+        const candidates = [];
+        for (let i = 1; i <= MAX; i++) {
+          const pageStr = i < 10 ? "0" + i : i.toString();
+          candidates.push({
+            src: `${BASE_PATH}${series}/${chapterNumber}/${pageStr}.jpg`,
+            alt: `${series} ch${chapterNumber} p${i}`,
+          });
+        }
+
+        // Load semua gambar paralel
+        const results = await Promise.all(
+          candidates.map((c) => loadPage(c.src, c.alt))
+        );
+
         let foundAny = false;
 
-        while (true) {
-          // nama file: 01.jpg, 02.jpg, ..., 10.jpg, 11.jpg, dst
-          const pageStr = page < 10 ? "0" + page : page.toString();
-          const src = `${BASE_PATH}${series}/${chapterNumber}/${pageStr}.jpg`;
-          const alt = `${series} ch${chapterNumber} p${page}`;
-
-          const result = await loadPage(src, alt);
-
-          if (!result.ok) {
-
-            if (!foundAny) return false;
-   
-            break;
+        for (const r of results) {
+          if (!r.ok) {
+            if (!foundAny) return false; // folder tidak ada sama sekali
+            break; // selesai chapter
           }
 
           foundAny = true;
-
           const wrap = document.createElement("div");
           wrap.className = "page-wrap";
-          wrap.appendChild(result.img);
+          wrap.appendChild(r.img);
           block.appendChild(wrap);
-
-          page++;
-
-          if (page > 500) break;
         }
 
         if (!foundAny) return false;
