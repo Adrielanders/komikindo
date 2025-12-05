@@ -27,7 +27,7 @@
         justify-content: space-between; /* kiri-kanan */
         gap: 8px;
       }
-
+      
       .title {
         font-size: 14px;
         opacity: 0.7;
@@ -178,7 +178,6 @@
           align-items: flex-start;
         }
       }
-
       .back-btn {
         background: #111827;
         color: #e5e7eb;
@@ -235,7 +234,6 @@
       if (Number.isNaN(currentChapter) || currentChapter < 1)
         currentChapter = 1;
 
-      // PAKE YANG INI AJA, KAYA VERSI YANG TADI NGEPANGGIL DENGAN BENAR DI GITHUB
       const BASE_PATH = "../manhwa/";
 
       const readerContainer = document.getElementById("readerContainer");
@@ -246,7 +244,6 @@
       const chapterInput = document.getElementById("chapterInput");
       const chapterInfo = document.getElementById("chapterInfo");
       const goBtn = document.getElementById("goBtn");
-      const backBtn = document.getElementById("backBtn");
 
       // helper: pindah ke chapter tertentu
       function navigateToChapter(ch) {
@@ -259,35 +256,16 @@
         window.location.search = url;
       }
 
-      // helper: load satu halaman, coba beberapa ekstensi (JPG → GIF)
-      function loadPageWithExtensions(basePath, alt, exts = ["jpg", "gif"]) {
+      // helper load satu gambar
+      function loadPage(src, alt) {
         return new Promise((resolve) => {
           const img = new Image();
-          let idx = 0;
-
+          img.onload = () => resolve({ ok: true, img });
+          img.onerror = () => resolve({ ok: false });
+          img.src = src;
           img.alt = alt;
           img.className = "page-img";
           img.loading = "lazy";
-
-          const tryNext = () => {
-            if (idx >= exts.length) {
-              // semua ekstensi gagal
-              resolve({ ok: false });
-              return;
-            }
-            const ext = exts[idx++];
-            const src = `${basePath}.${ext}`;
-            img.src = src;
-          };
-
-          img.onload = () => resolve({ ok: true, img });
-          img.onerror = () => {
-            // kalau ekstensi ini gagal, coba ekstensi berikutnya
-            tryNext();
-          };
-
-          // mulai dengan ekstensi pertama
-          tryNext();
         });
       }
 
@@ -311,15 +289,13 @@
         for (let i = 1; i <= MAX; i++) {
           const pageStr = i < 10 ? "0" + i : i.toString();
           candidates.push({
-            basePath: `${BASE_PATH}${series}/${chapterNumber}/${pageStr}`, // TANPA ekstensi
+            src: `${BASE_PATH}${series}/${chapterNumber}/${pageStr}.jpg`,
             alt: `${series} ch${chapterNumber} p${i}`,
           });
         }
 
         const results = await Promise.all(
-          candidates.map((c) =>
-            loadPageWithExtensions(c.basePath, c.alt, ["jpg", "gif"])
-          )
+          candidates.map((c) => loadPage(c.src, c.alt))
         );
 
         let foundAny = false;
@@ -410,6 +386,8 @@
           navigateToChapter(target);
         }
       });
+
+      const backBtn = document.getElementById("backBtn");
 
       backBtn.addEventListener("click", () => {
         const url = "../chapters/?series=" + encodeURIComponent(series);
