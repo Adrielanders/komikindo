@@ -898,16 +898,6 @@
         },
         {
           id: 2,
-          title: "Solo Leveling: Rebirth",
-          slug: "solo-leveling-rebirth",
-          genres: ["action", "fantasy"],
-          banner: "Baru",
-          rating: 4.8,
-          latestChapter: "Ch. 12",
-          views: "620K",
-        },
-        {
-          id: 3,
           title: "My Overpowered Academy Life",
           slug: "my-op-academy-life",
           genres: ["school", "comedy", "fantasy"],
@@ -1014,80 +1004,82 @@
           : `COVER<br/>${heroComic.title.slice(0, 22)}`;
 
         const heroHtml = `
-    <article class="hero-main">
-      <div>
-        <div class="badge">
-          <span class="badge-dot"></span>
-          <span>Update hari ini • ${heroComic.latestChapter}</span>
-        </div>
-
-        <h1 class="hero-title">${heroComic.title}</h1>
-
-        <div class="hero-meta">
-          <span>⭐ ${heroComic.rating.toFixed(1)} rating</span>
-          <span class="hero-meta-pill">${heroComic.genres.join(" • ")}</span>
-          <span>🔥 ${heroComic.views} views</span>
-        </div>
-
-        <p class="hero-description">
-          ${heroComic.description}
-        </p>
-      </div>
-
-      <div>
-        <div class="hero-actions">
-          <button class="btn btn-primary" type="button" id="heroReadBtn">
-            ▶️ Baca dari awal
-          </button>
-          <button class="btn btn-outline" type="button">
-            ➕ Tambah ke favorit
-          </button>
-        </div>
-        <div class="hero-bottom-meta">
-          <span>Chapter terakhir: <strong>${
-            heroComic.latestChapter
-          }</strong></span>
-          <span>Status: <strong>${heroComic.status}</strong></span>
-          <span>Update: <strong>${heroComic.schedule}</strong></span>
-        </div>
-      </div>
-    </article>
-
-    <article class="hero-cover-wrap">
-      <div class="hero-cover-inner">
-        <div class="hero-cover-left">
-          <div class="hero-cover-poster">
-            ${heroPoster}
-          </div>
-        </div>
-        <div class="hero-cover-right">
+        <article class="hero-main">
           <div>
-            <div class="hero-tags">
-              ${tags
-                .map((tag) => `<span class="hero-tag">${tag}</span>`)
-                .join("")}
+            <div class="badge">
+              <span class="badge-dot"></span>
+              <span>Update hari ini • ${heroComic.latestChapter}</span>
             </div>
-            <div class="hero-mini-chapters">
-              ${heroComic.lastUpdates
-                .map(
-                  (row) => `
-                  <div class="hero-mini-chapter-row">
-                    <span>${row.chapter}</span>
-                    <span>${row.time}</span>
-                  </div>
-                `
-                )
-                .join("")}
+
+            <h1 class="hero-title">${heroComic.title}</h1>
+
+            <div class="hero-meta">
+              <span>⭐ ${heroComic.rating.toFixed(1)} rating</span>
+              <span class="hero-meta-pill">${heroComic.genres.join(
+                " • "
+              )}</span>
+              <span>🔥 ${heroComic.views} views</span>
+            </div>
+
+            <p class="hero-description">
+              ${heroComic.description}
+            </p>
+          </div>
+
+          <div>
+            <div class="hero-actions">
+              <button class="btn btn-primary" type="button" id="heroReadBtn">
+                ▶️ Baca dari awal
+              </button>
+              <button class="btn btn-outline" type="button">
+                ➕ Tambah ke favorit
+              </button>
+            </div>
+            <div class="hero-bottom-meta">
+              <span>Chapter terakhir: <strong>${
+                heroComic.latestChapter
+              }</strong></span>
+              <span>Status: <strong>${heroComic.status}</strong></span>
+              <span>Update: <strong>${heroComic.schedule}</strong></span>
             </div>
           </div>
-          <p class="hero-note">
-            *Tampilan sampul hanya ilustrasi. Konten asli muncul saat masuk ke halaman baca.
-          </p>
-        </div>
-      </div>
-      <div class="banner-label">${heroComic.banner}</div>
-    </article>
-  `;
+        </article>
+
+        <article class="hero-cover-wrap">
+          <div class="hero-cover-inner">
+            <div class="hero-cover-left">
+              <div class="hero-cover-poster">
+                ${heroPoster}
+              </div>
+            </div>
+            <div class="hero-cover-right">
+              <div>
+                <div class="hero-tags">
+                  ${tags
+                    .map((tag) => `<span class="hero-tag">${tag}</span>`)
+                    .join("")}
+                </div>
+                <div class="hero-mini-chapters">
+                  ${heroComic.lastUpdates
+                    .map(
+                      (row) => `
+                      <div class="hero-mini-chapter-row">
+                        <span>${row.chapter}</span>
+                        <span>${row.time}</span>
+                      </div>
+                    `
+                    )
+                    .join("")}
+                </div>
+              </div>
+              <p class="hero-note">
+                *Tampilan sampul hanya ilustrasi. Konten asli muncul saat masuk ke halaman baca.
+              </p>
+            </div>
+          </div>
+          <div class="banner-label">${heroComic.banner}</div>
+        </article>
+      `;
 
         heroSection.innerHTML = heroHtml;
 
@@ -1098,7 +1090,6 @@
 
             window.location.href =
               "reader/?series=" + heroComic.slug + "&chapter=" + chapterNumber;
-            
           });
         }
       }
@@ -1130,33 +1121,40 @@
         filtered.forEach((comic) => {
           const genresText = comic.genres.join(" • ");
 
+          // cover: pakai gambar kalau ada, kalau tidak pakai teks fallback
+          const coverContent = comic.cover
+            ? `<img src="${comic.cover}" alt="Cover ${comic.title}" />`
+            : `COVER<br />${comic.title.slice(0, 22)}`;
+
           const card = document.createElement("article");
           card.className = "comic-card";
           card.innerHTML = `
-                      <div class="comic-cover">
-                          <div class="comic-cover-inner">
-                              COVER<br />${comic.title.slice(0, 22)}
-                          </div>
-                          <div class="comic-badge">${comic.banner}</div>
-                          <div class="comic-rating">
-                              ★ ${comic.rating.toFixed(1)}
-                          </div>
-                      </div>
-                      <div class="comic-body">
-                          <h3 class="comic-title">${comic.title}</h3>
-                          <div class="comic-genre">${genresText}</div>
-                          <div class="comic-meta-row">
-                              <span>${comic.latestChapter}</span>
-                              <span>${comic.views} views</span>
-                          </div>
-                      </div>
-                  `;
+    <div class="comic-cover">
+      <div class="comic-cover-inner">
+        ${coverContent}
+      </div>
+      <div class="comic-badge">${comic.banner}</div>
+      <div class="comic-rating">
+        ★ ${comic.rating.toFixed(1)}
+      </div>
+    </div>
+    <div class="comic-body">
+      <h3 class="comic-title">${comic.title}</h3>
+      <div class="comic-genre">${genresText}</div>
+      <div class="comic-meta-row">
+        <span>${comic.latestChapter}</span>
+        <span>${comic.views} views</span>
+      </div>
+    </div>
+  `;
 
           card.addEventListener("click", () => {
+            // nanti bisa diarahkan ke reader/detail:
+            // window.location.href = "reader/?series=" + comic.slug + "&chapter=1";
             alert(
               "Klik komik: " +
                 comic.title +
-                "\n\nDi production, arahkan ke halaman detail komik:\n/comics/" +
+                "\n\nDi production, arahkan ke halaman detail komik atau reader.\nSlug: " +
                 comic.slug
             );
           });
