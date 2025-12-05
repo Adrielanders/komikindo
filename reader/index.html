@@ -48,9 +48,8 @@
 
       .page-img {
         width: 100%;
-        margin-bottom: 10px;
+        margin-bottom: -6px;
         background: #0f1423;
-        border-radius: 6px;
         display: block;
       }
 
@@ -182,9 +181,9 @@
           const result = await loadPage(src, alt);
 
           if (!result.ok) {
-            // kalau page pertama aja gak ada → chapter gak ada
+
             if (!foundAny) return false;
-            // kalau sudah sempat ada yg ke-load → berarti halaman sudah habis
+   
             break;
           }
 
@@ -197,7 +196,6 @@
 
           page++;
 
-          // guard biar gak infinite loop kalau ada error aneh
           if (page > 500) break;
         }
 
@@ -218,7 +216,7 @@
 
         return true;
       }
-      
+
       // init: load chapter dari URL
       (async function init() {
         loadingEl.textContent = `Memuat chapter ${currentChapter}...`;
