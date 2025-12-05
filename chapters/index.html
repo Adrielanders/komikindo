@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Daftar Chapter - Komiku Indo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      :root {
+        --bg-main: #050812;
+        --bg-elevated: #101524;
+        --accent: #ff4b5c;
+        --text-main: #f9fafb;
+        --text-muted: #9ca3af;
+        --border-soft: #374151;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Poppins",
+          sans-serif;
+        background: radial-gradient(
+          circle at top,
+          #151c32 0,
+          #050812 45%,
+          #020309 100%
+        );
+        color: var(--text-main);
+        min-height: 100vh;
+      }
+
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: blur(14px);
+        background: linear-gradient(
+          to bottom,
+          rgba(5, 8, 18, 0.96),
+          rgba(5, 8, 18, 0.9),
+          transparent
+        );
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .header-inner {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo-mark {
+        width: 28px;
+        height: 28px;
+        border-radius: 10px;
+        background: conic-gradient(
+          from 210deg,
+          #ff4b5c,
+          #ff9a62,
+          #ffe36e,
+          #ff4b5c
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+        color: #111827;
+      }
+
+      .logo-text {
+        font-size: 13px;
+      }
+
+      .logo-text span {
+        display: block;
+      }
+
+      .logo-small {
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+
+      main {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 16px;
+      }
+
+      .series-header {
+        margin-bottom: 16px;
+      }
+
+      .series-name {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .series-meta {
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+
+      .chapter-list {
+        margin-top: 16px;
+        border-radius: 10px;
+        border: 1px solid rgba(55, 65, 81, 0.7);
+        background: rgba(15, 23, 42, 0.85);
+        overflow: hidden;
+      }
+
+      .chapter-item {
+        padding: 10px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(31, 41, 55, 0.85);
+        transition: background 0.15s ease, transform 0.05s ease;
+      }
+
+      .chapter-item:last-child {
+        border-bottom: none;
+      }
+
+      .chapter-item:hover {
+        background: rgba(31, 41, 55, 0.9);
+        transform: translateY(-1px);
+      }
+
+      .chapter-left {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .chapter-title {
+        font-size: 14px;
+      }
+
+      .chapter-sub {
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+
+      .chapter-right {
+        font-size: 11px;
+        color: var(--accent);
+        white-space: nowrap;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 7px;
+        border-radius: 999px;
+        font-size: 10px;
+        background: rgba(31, 41, 55, 0.9);
+        border: 1px solid rgba(55, 65, 81, 0.9);
+        color: #e5e7eb;
+        margin-top: 6px;
+      }
+
+      .status-pill span {
+        font-size: 8px;
+      }
+
+      .loading,
+      .error,
+      .empty {
+        margin-top: 18px;
+        font-size: 13px;
+        color: var(--text-muted);
+      }
+
+      .loading span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--accent);
+        animation: pulse 1.3s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.7);
+        }
+        70% {
+          transform: scale(1.6);
+          box-shadow: 0 0 0 10px rgba(248, 113, 113, 0);
+        }
+        100% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(248, 113, 113, 0);
+        }
+      }
+
+      @media (max-width: 640px) {
+        .header-inner {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+
+      .chapter-item.active .chapter-title {
+        color: var(--accent); /* merah */
+      }
+
+      .chapter-item.active .chapter-sub {
+        color: #fca5a5; /* merah muda, biar kelihatan beda */
+      }
+
+      .chapter-item.active {
+        background: rgba(127, 29, 29, 0.35);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="header-inner">
+        <div class="logo">
+          <div class="logo-mark">K</div>
+          <div class="logo-text">
+            <span>Komiku Indo</span>
+            <span class="logo-small">Daftar Chapter</span>
+          </div>
+        </div>
+        <div class="logo-small" id="seriesBreadcrumb">Memuat series...</div>
+      </div>
+    </header>
+
+    <main>
+      <section class="series-header">
+        <h1 class="series-name" id="seriesName">Memuat...</h1>
+        <p class="series-meta" id="seriesMeta">
+          Membaca daftar chapter dari struktur folder manhwa...
+        </p>
+        <div class="status-pill" id="seriesStatus" style="display: none">
+          <span>●</span><span id="statusText"></span>
+        </div>
+      </section>
+
+      <section id="chapterContainer">
+        <div class="loading" id="loading">
+          <span
+            ><span class="dot"></span> Mencari chapter yang tersedia...</span
+          >
+        </div>
+        <div class="error" id="error" style="display: none"></div>
+        <div class="empty" id="empty" style="display: none"></div>
+        <div class="chapter-list" id="chapterList" style="display: none"></div>
+      </section>
+    </main>
+
+    <script>
+      // ====== BACA PARAMETER SERIES DARI URL ======
+      const params = new URLSearchParams(window.location.search);
+      const series = params.get("series"); // HARUS ada
+
+      const seriesNameEl = document.getElementById("seriesName");
+      const seriesMetaEl = document.getElementById("seriesMeta");
+      const seriesBreadcrumb = document.getElementById("seriesBreadcrumb");
+      const statusPill = document.getElementById("seriesStatus");
+      const statusText = document.getElementById("statusText");
+
+      const loadingEl = document.getElementById("loading");
+      const errorEl = document.getElementById("error");
+      const emptyEl = document.getElementById("empty");
+      const chapterListEl = document.getElementById("chapterList");
+
+      const BASE_PATH = "../manhwa/"; // dari /chapters/ ke /manhwa/
+
+      if (!series) {
+        seriesNameEl.textContent = "Series tidak ditentukan";
+        seriesMetaEl.textContent =
+          "Tambahkan ?series=nama-folder di URL. Contoh: ?series=solo-leveling";
+        loadingEl.style.display = "none";
+      } else {
+        const niceName = series
+          .replace(/-/g, " ")
+          .replace(/\s+/g, " ")
+          .toLowerCase()
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+
+        seriesNameEl.textContent = niceName;
+        seriesBreadcrumb.textContent = "Series: " + niceName;
+        seriesMetaEl.textContent =
+          "Menampilkan daftar chapter dari folder: manhwa/" + series + "/...";
+      }
+
+      // ====== COOKIE HELPER ======
+      function setCookie(name, value, days) {
+        let expires = "";
+        if (days) {
+          const date = new Date();
+          date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+          expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie =
+          name + "=" + encodeURIComponent(value) + expires + "; path=/";
+      }
+
+      function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(";");
+        for (let i = 0; i < ca.length; i++) {
+          let c = ca[i];
+          while (c.charAt(0) === " ") c = c.substring(1, c.length);
+          if (c.indexOf(nameEQ) === 0) {
+            return decodeURIComponent(c.substring(nameEQ.length, c.length));
+          }
+        }
+        return null;
+      }
+
+      // baca cookie last read (kalau ada)
+      let lastRead = null;
+      const lastReadCookie = getCookie("komiku_last_read");
+      if (lastReadCookie) {
+        try {
+          lastRead = JSON.parse(lastReadCookie); // {series: "...", chapter: N}
+        } catch (e) {
+          lastRead = null;
+        }
+      }
+
+      // helper: cek apakah 01.jpg di chapter tertentu ada
+      function checkChapterExists(seriesSlug, chapterNumber) {
+        return new Promise((resolve) => {
+          const img = new Image();
+          const src = `${BASE_PATH}${seriesSlug}/${chapterNumber}/01.jpg`;
+          img.onload = () => resolve(true);
+          img.onerror = () => resolve(false);
+          img.src = src;
+        });
+      }
+
+      async function detectChapters() {
+        if (!series) return;
+
+        const foundChapters = [];
+        const MAX_CHAPTER = 500;
+        let missStreak = 0;
+        const MISS_LIMIT = 30; // setelah 30 miss beruntun, anggap habis
+
+        for (let ch = 1; ch <= MAX_CHAPTER; ch++) {
+          const exists = await checkChapterExists(series, ch);
+          if (exists) {
+            foundChapters.push(ch);
+            missStreak = 0;
+          } else {
+            missStreak++;
+            if (foundChapters.length > 0 && missStreak >= MISS_LIMIT) {
+              break;
+            }
+          }
+        }
+
+        loadingEl.style.display = "none";
+
+        if (!foundChapters.length) {
+          emptyEl.style.display = "block";
+          emptyEl.textContent =
+            "Belum ditemukan chapter untuk series ini. Pastikan struktur folder manhwa/" +
+            series +
+            "/<nomor_chapter>/01.jpg sudah benar.";
+          return;
+        }
+
+        // tampilkan status
+        statusPill.style.display = "inline-flex";
+        statusText.textContent = foundChapters.length + " chapter terdeteksi";
+
+        foundChapters.sort((a, b) => b - a);
+
+        chapterListEl.style.display = "block";
+        chapterListEl.innerHTML = "";
+
+        foundChapters.forEach((ch) => {
+          const item = document.createElement("div");
+          item.className = "chapter-item";
+          item.innerHTML = `
+        <div class="chapter-left">
+          <div class="chapter-title">Chapter ${ch}</div>
+          <div class="chapter-sub">Klik untuk membaca</div>
+        </div>
+        <div class="chapter-right">
+          Baca ➜
+        </div>
+      `;
+
+          // kalau cookie lastRead cocok → tandai active (merah)
+          if (
+            lastRead &&
+            lastRead.series === series &&
+            lastRead.chapter === ch
+          ) {
+            item.classList.add("active");
+          }
+
+          item.addEventListener("click", () => {
+            // simpan ke cookie: series & chapter terakhir yang dibaca (30 hari)
+            const lastReadData = {
+              series: series,
+              chapter: ch,
+            };
+            setCookie("komiku_last_read", JSON.stringify(lastReadData), 30);
+
+            // highlight langsung
+            document
+              .querySelectorAll(".chapter-item.active")
+              .forEach((el) => el.classList.remove("active"));
+            item.classList.add("active");
+
+            // arahkan ke reader
+            const url =
+              "../reader/?series=" +
+              encodeURIComponent(series) +
+              "&chapter=" +
+              encodeURIComponent(ch);
+            window.location.href = url;
+          });
+
+          chapterListEl.appendChild(item);
+        });
+      }
+
+      detectChapters();
+    </script>
+  </body>
+</html>

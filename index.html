@@ -1149,16 +1149,13 @@
   `;
 
           card.addEventListener("click", () => {
-            // nanti bisa diarahkan ke reader/detail:
-            // window.location.href = "reader/?series=" + comic.slug + "&chapter=1";
-            alert(
-              "Klik komik: " +
-                comic.title +
-                "\n\nDi production, arahkan ke halaman detail komik atau reader.\nSlug: " +
-                comic.slug
-            );
-          });
+            // normalisasi: "Solo Leveling" -> "solo-leveling"
+            const seriesSlug = comic.slug.toLowerCase().replace(/\s+/g, "-");
 
+            window.location.href =
+              "chapters/?series=" + encodeURIComponent(seriesSlug);
+          });
+          
           comicGrid.appendChild(card);
         });
       }
