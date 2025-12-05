@@ -27,7 +27,7 @@
         justify-content: space-between; /* kiri-kanan */
         gap: 8px;
       }
-
+      
       .title {
         font-size: 14px;
         opacity: 0.7;
@@ -260,28 +260,12 @@
       function loadPage(src, alt) {
         return new Promise((resolve) => {
           const img = new Image();
-          let triedGif = false;
-
+          img.onload = () => resolve({ ok: true, img });
+          img.onerror = () => resolve({ ok: false });
+          img.src = src;
           img.alt = alt;
           img.className = "page-img";
           img.loading = "lazy";
-
-          img.onload = () => resolve({ ok: true, img });
-
-          img.onerror = () => {
-            // kalau .jpg gagal, cobain .gif sekali
-            if (!triedGif) {
-              triedGif = true;
-              const gifSrc = src.replace(/\.jpg$/i, ".gif");
-              img.src = gifSrc;
-            } else {
-              // jpg & gif dua-duanya gagal
-              resolve({ ok: false });
-            }
-          };
-
-          // mulai dengan .jpg
-          img.src = src;
         });
       }
 
@@ -313,7 +297,7 @@
         const results = await Promise.all(
           candidates.map((c) => loadPage(c.src, c.alt))
         );
-        
+
         let foundAny = false;
 
         for (const r of results) {
