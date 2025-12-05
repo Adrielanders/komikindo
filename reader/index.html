@@ -235,14 +235,8 @@
       if (Number.isNaN(currentChapter) || currentChapter < 1)
         currentChapter = 1;
 
-      // ==== BASE_PATH: otomatis sesuaikan dengan GitHub Pages ====
-      // Contoh:
-      // - user page:   https://username.github.io/         -> /manhwa/
-      // - project page: https://username.github.io/repo/   -> /repo/manhwa/
-      const pathParts = window.location.pathname.split("/").filter(Boolean);
-      const projectRoot = pathParts.length > 1 ? "/" + pathParts[0] + "/" : "/";
-      const BASE_PATH = projectRoot + "manhwa/";
-      console.log("BASE_PATH:", BASE_PATH);
+      // PAKE YANG INI AJA, KAYA VERSI YANG TADI NGEPANGGIL DENGAN BENAR DI GITHUB
+      const BASE_PATH = "../manhwa/";
 
       const readerContainer = document.getElementById("readerContainer");
       const loadingEl = document.getElementById("loading");
@@ -252,6 +246,7 @@
       const chapterInput = document.getElementById("chapterInput");
       const chapterInfo = document.getElementById("chapterInfo");
       const goBtn = document.getElementById("goBtn");
+      const backBtn = document.getElementById("backBtn");
 
       // helper: pindah ke chapter tertentu
       function navigateToChapter(ch) {
@@ -264,7 +259,7 @@
         window.location.search = url;
       }
 
-      // helper: load satu halaman, coba beberapa ekstensi
+      // helper: load satu halaman, coba beberapa ekstensi (JPG → GIF)
       function loadPageWithExtensions(basePath, alt, exts = ["jpg", "gif"]) {
         return new Promise((resolve) => {
           const img = new Image();
@@ -276,13 +271,12 @@
 
           const tryNext = () => {
             if (idx >= exts.length) {
-              console.log("❌ Gagal semua ekstensi untuk:", basePath);
+              // semua ekstensi gagal
               resolve({ ok: false });
               return;
             }
             const ext = exts[idx++];
             const src = `${basePath}.${ext}`;
-            console.log("Coba load:", src);
             img.src = src;
           };
 
@@ -317,7 +311,7 @@
         for (let i = 1; i <= MAX; i++) {
           const pageStr = i < 10 ? "0" + i : i.toString();
           candidates.push({
-            basePath: `${BASE_PATH}${series}/${chapterNumber}/${pageStr}`, // tanpa ekstensi
+            basePath: `${BASE_PATH}${series}/${chapterNumber}/${pageStr}`, // TANPA ekstensi
             alt: `${series} ch${chapterNumber} p${i}`,
           });
         }
@@ -416,8 +410,6 @@
           navigateToChapter(target);
         }
       });
-
-      const backBtn = document.getElementById("backBtn");
 
       backBtn.addEventListener("click", () => {
         const url = "../chapters/?series=" + encodeURIComponent(series);
