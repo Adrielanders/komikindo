@@ -360,29 +360,44 @@
         });
       }
 
+      // ====== CACHE CHAPTER DI LOCALSTORAGE ======
+      const CHAPTER_CACHE_KEY = series ? "komiku_chapters_" + series : null;
+
+      function loadChapterCache() {
+        if (!CHAPTER_CACHE_KEY) return null;
+        try {
+          const raw = localStorage.getItem(CHAPTER_CACHE_KEY);
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          if (!Array.isArray(parsed)) return null;
+          return parsed;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function saveChapterCache(list) {
+        if (!CHAPTER_CACHE_KEY) return;
+        try {
+          localStorage.setItem(CHAPTER_CACHE_KEY, JSON.stringify(list));
+        } catch (e) {}
+      }
+
       async function detectChapters() {
         if (!series) return;
 
-        const foundChapters = [];
-        const MAX_CHAPTER = 500;
-        let missStreak = 0;
-        const MISS_LIMIT = 30; 
-        for (let ch = 1; ch <= MAX_CHAPTER; ch++) {
-          const exists = await checkChapterExists(series, ch);
-          if (exists) {
-            foundChapters.push(ch);
-            missStreak = 0;
-          } else {
-            missStreak++;
-            if (foundChapters.length > 0 && missStreak >= MISS_LIMIT) {
-              break;
-            }
-          }
+        // 1. coba pakai cache dulu biar halaman cepat muncul
+        const cached = loadChapterCache();
+        if (cached && cached.length) {
+          renderChapterList(cached); // render langsung dari cache
         }
 
-        loadingEl.style.display = "none";
+        // 2. baru lakukan scan beneran untuk update (bisa agak lama, tapi di belakang)
+        const fresh = await scanChapters();
 
-        if (!foundChapters.length) {
+        // kalau scan gagal / kosong, dan tidak ada cache → tampilkan pesan kosong
+        if ((!fresh || !fresh.length) && !cached) {
+          loadingEl.style.display = "none";
           emptyEl.style.display = "block";
           emptyEl.textContent =
             "Belum ditemukan chapter untuk series ini. Pastikan struktur folder manhwa/" +
@@ -391,29 +406,63 @@
           return;
         }
 
-        // tampilkan status
-        statusPill.style.display = "inline-flex";
-        statusText.textContent = foundChapters.length + " chapter terdeteksi";
+        // kalau hasil fresh sama dengan cache, nggak perlu re-render
+        if (fresh && fresh.length) {
+          saveChapterCache(fresh);
+          renderChapterList(fresh); // render pakai data terbaru
+        }
 
-        foundChapters.sort((a, b) => b - a);
+        loadingEl.style.display = "none";
+      }
+
+      detectChapters();
+
+      async function scanChapters() {
+        const foundChapters = [];
+        const MAX_CHAPTER = 300; // batas atas aman
+        let missStreak = 0;
+        const MISS_LIMIT = 8; // begitu 8 kali berturut-turut kosong → stop
+
+        for (let ch = 1; ch <= MAX_CHAPTER; ch++) {
+          const exists = await checkChapterExists(series, ch);
+
+          if (exists) {
+            foundChapters.push(ch);
+            missStreak = 0; // reset miss kalau ada yang ketemu lagi
+          } else {
+            // mulai hitung miss hanya setelah minimal 1 chapter ketemu
+            if (foundChapters.length > 0) {
+              missStreak++;
+              if (missStreak >= MISS_LIMIT) break;
+            }
+          }
+        }
+
+        return foundChapters;
+      }
+
+      function renderChapterList(chapters) {
+        if (!chapters || !chapters.length) return;
+
+        statusPill.style.display = "inline-flex";
+        statusText.textContent = chapters.length + " chapter terdeteksi";
+
+        chapters = [...chapters].sort((a, b) => b - a); // urut besar → kecil
 
         chapterListEl.style.display = "block";
         chapterListEl.innerHTML = "";
 
-        foundChapters.forEach((ch) => {
+        chapters.forEach((ch) => {
           const item = document.createElement("div");
           item.className = "chapter-item";
           item.innerHTML = `
-        <div class="chapter-left">
-          <div class="chapter-title">Chapter ${ch}</div>
-          <div class="chapter-sub">Klik untuk membaca</div>
-        </div>
-        <div class="chapter-right">
-          Baca ➜
-        </div>
-      `;
+      <div class="chapter-left">
+        <div class="chapter-title">Chapter ${ch}</div>
+        <div class="chapter-sub">Klik untuk membaca</div>
+      </div>
+      <div class="chapter-right">Baca ➜</div>
+    `;
 
-          // kalau cookie lastRead cocok → tandai active (merah)
           if (
             lastRead &&
             lastRead.series === series &&
@@ -423,20 +472,14 @@
           }
 
           item.addEventListener("click", () => {
-            // simpan ke cookie: series & chapter terakhir yang dibaca (30 hari)
-            const lastReadData = {
-              series: series,
-              chapter: ch,
-            };
+            const lastReadData = { series: series, chapter: ch };
             setCookie("komiku_last_read", JSON.stringify(lastReadData), 30);
 
-            // highlight langsung
             document
               .querySelectorAll(".chapter-item.active")
               .forEach((el) => el.classList.remove("active"));
             item.classList.add("active");
 
-            // arahkan ke reader
             const url =
               "../reader/?series=" +
               encodeURIComponent(series) +
@@ -448,8 +491,6 @@
           chapterListEl.appendChild(item);
         });
       }
-
-      detectChapters();
     </script>
   </body>
 </html>
