@@ -178,6 +178,7 @@
           align-items: flex-start;
         }
       }
+
       .back-btn {
         background: #111827;
         color: #e5e7eb;
@@ -234,7 +235,14 @@
       if (Number.isNaN(currentChapter) || currentChapter < 1)
         currentChapter = 1;
 
-      const BASE_PATH = "../manhwa/";
+      // ==== BASE_PATH: otomatis sesuaikan dengan GitHub Pages ====
+      // Contoh:
+      // - user page:   https://username.github.io/         -> /manhwa/
+      // - project page: https://username.github.io/repo/   -> /repo/manhwa/
+      const pathParts = window.location.pathname.split("/").filter(Boolean);
+      const projectRoot = pathParts.length > 1 ? "/" + pathParts[0] + "/" : "/";
+      const BASE_PATH = projectRoot + "manhwa/";
+      console.log("BASE_PATH:", BASE_PATH);
 
       const readerContainer = document.getElementById("readerContainer");
       const loadingEl = document.getElementById("loading");
@@ -256,7 +264,7 @@
         window.location.search = url;
       }
 
-      // helper load satu gambar
+      // helper: load satu halaman, coba beberapa ekstensi
       function loadPageWithExtensions(basePath, alt, exts = ["jpg", "gif"]) {
         return new Promise((resolve) => {
           const img = new Image();
@@ -268,8 +276,7 @@
 
           const tryNext = () => {
             if (idx >= exts.length) {
-              // semua ekstensi gagal
-              console.log("GAGAL semua ekstensi untuk:", basePath);
+              console.log("❌ Gagal semua ekstensi untuk:", basePath);
               resolve({ ok: false });
               return;
             }
