@@ -171,10 +171,29 @@
           align-items: flex-start;
         }
       }
+
+      .back-btn {
+        background: #111827;
+        color: #e5e7eb;
+        font-size: 12px;
+        padding: 6px 10px;
+        border: 1px solid #374151;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-bottom: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .back-btn:hover {
+        background: #1f2937;
+      }
     </style>
   </head>
   <body>
     <header>
+      <button id="backBtn" class="back-btn">⬅ Kembali ke Daftar Chapter</button>
       <div class="title" id="headerTitle">Memuat...</div>
     </header>
 
@@ -196,9 +215,7 @@
             inputmode="numeric" />
           <button id="goBtn">Pergi</button>
         </div>
-        <div class="nav-center-info" id="chapterInfo">
-          Sedang di Chapter -
-        </div>
+        <div class="nav-center-info" id="chapterInfo">Sedang di Chapter -</div>
       </div>
 
       <button class="nav-btn" id="nextBtn">Chapter Selanjutnya ➜</button>
@@ -363,6 +380,13 @@
           if (Number.isNaN(target) || target < 1) return;
           navigateToChapter(target);
         }
+      });
+
+      const backBtn = document.getElementById("backBtn");
+
+      backBtn.addEventListener("click", () => {
+        const url = "../chapters/?series=" + encodeURIComponent(series);
+        window.location.href = url;
       });
     </script>
   </body>
