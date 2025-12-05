@@ -269,11 +269,14 @@
           const tryNext = () => {
             if (idx >= exts.length) {
               // semua ekstensi gagal
+              console.log("GAGAL semua ekstensi untuk:", basePath);
               resolve({ ok: false });
               return;
             }
             const ext = exts[idx++];
-            img.src = `${basePath}.${ext}`;
+            const src = `${basePath}.${ext}`;
+            console.log("Coba load:", src);
+            img.src = src;
           };
 
           img.onload = () => resolve({ ok: true, img });
@@ -317,7 +320,7 @@
             loadPageWithExtensions(c.basePath, c.alt, ["jpg", "gif"])
           )
         );
-        
+
         let foundAny = false;
 
         for (const r of results) {
