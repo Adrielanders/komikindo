@@ -76,13 +76,16 @@
         margin-top: 8px;
       }
 
+      /* NAVIGATION CHAPTER */
       .nav-chapter {
         max-width: 760px;
-        margin: 0 auto 24px;
+        margin: 0 auto 12px;
         padding: 0 16px;
         display: flex;
+        align-items: center;
         justify-content: space-between;
-        gap: 10px;
+        gap: 8px;
+        flex-wrap: wrap;
       }
 
       .nav-btn {
@@ -110,6 +113,64 @@
         opacity: 0.4;
         cursor: not-allowed;
       }
+
+      .nav-center {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        min-width: 0;
+      }
+
+      .nav-center-top {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+      }
+
+      .nav-center-top input {
+        width: 60px;
+        padding: 4px 6px;
+        border-radius: 4px;
+        border: 1px solid #374151;
+        background: #020617;
+        color: #e5e7eb;
+        font-size: 12px;
+        text-align: center;
+      }
+
+      .nav-center-top button {
+        padding: 4px 8px;
+        border-radius: 4px;
+        border: 1px solid #4b5563;
+        background: #111827;
+        color: #e5e7eb;
+        font-size: 12px;
+        cursor: pointer;
+      }
+
+      .nav-center-top button:hover {
+        background: #1f2937;
+      }
+
+      .nav-center-info {
+        font-size: 11px;
+        color: #9ca3af;
+      }
+
+      @media (max-width: 640px) {
+        .nav-chapter {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .nav-btn {
+          width: 100%;
+        }
+        .nav-center {
+          align-items: flex-start;
+        }
+      }
     </style>
   </head>
   <body>
@@ -120,9 +181,26 @@
     <div class="reader-container" id="readerContainer"></div>
     <div class="loading" id="loading">Memuat chapter...</div>
 
-    <!-- Navigation buttons -->
+    <!-- Navigation + choose chapter -->
     <div class="nav-chapter">
       <button class="nav-btn" id="prevBtn">⬅ Chapter Sebelumnya</button>
+
+      <div class="nav-center">
+        <div class="nav-center-top">
+          <span>Ke chapter:</span>
+          <input
+            type="number"
+            id="chapterInput"
+            min="1"
+            step="1"
+            inputmode="numeric" />
+          <button id="goBtn">Pergi</button>
+        </div>
+        <div class="nav-center-info" id="chapterInfo">
+          Sedang di Chapter -
+        </div>
+      </div>
+
       <button class="nav-btn" id="nextBtn">Chapter Selanjutnya ➜</button>
     </div>
 
@@ -141,6 +219,20 @@
       const headerTitle = document.getElementById("headerTitle");
       const prevBtn = document.getElementById("prevBtn");
       const nextBtn = document.getElementById("nextBtn");
+      const chapterInput = document.getElementById("chapterInput");
+      const chapterInfo = document.getElementById("chapterInfo");
+      const goBtn = document.getElementById("goBtn");
+
+      // helper: pindah ke chapter tertentu
+      function navigateToChapter(ch) {
+        if (!ch || ch < 1) return;
+        const url =
+          "?series=" +
+          encodeURIComponent(series) +
+          "&chapter=" +
+          encodeURIComponent(ch);
+        window.location.search = url;
+      }
 
       // helper load satu gambar
       function loadPage(src, alt) {
@@ -155,9 +247,9 @@
         });
       }
 
-      // render 1 chapter (PARALEL, SUPER CEPAT)
+      // render 1 chapter (PARALEL)
       async function loadChapter(chapterNumber) {
-        readerContainer.innerHTML = ""; // bersihkan isi sebelumnya
+        readerContainer.innerHTML = "";
 
         const block = document.createElement("section");
         block.className = "chapter-block";
@@ -170,7 +262,6 @@
         info.textContent = series.replace(/-/g, " ");
         block.append(title, info);
 
-        // Generate URL gambar 01–300
         const MAX = 150;
         const candidates = [];
         for (let i = 1; i <= MAX; i++) {
@@ -181,7 +272,6 @@
           });
         }
 
-        // Load semua gambar paralel
         const results = await Promise.all(
           candidates.map((c) => loadPage(c.src, c.alt))
         );
@@ -190,8 +280,8 @@
 
         for (const r of results) {
           if (!r.ok) {
-            if (!foundAny) return false; // folder tidak ada sama sekali
-            break; // selesai chapter
+            if (!foundAny) return false;
+            break;
           }
 
           foundAny = true;
@@ -213,13 +303,25 @@
 
         readerContainer.appendChild(block);
 
-        headerTitle.textContent =
-          series.replace(/-/g, " ") + " • Chapter " + chapterNumber;
+        const niceSeries = series
+          .replace(/-/g, " ")
+          .replace(/\s+/g, " ")
+          .toLowerCase()
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+
+        headerTitle.textContent = niceSeries + " • Chapter " + chapterNumber;
+
+        if (chapterInfo) {
+          chapterInfo.textContent = "Sedang di Chapter " + chapterNumber;
+        }
+        if (chapterInput) {
+          chapterInput.value = chapterNumber;
+        }
 
         return true;
       }
 
-      // init: load chapter dari URL
+      // init
       (async function init() {
         loadingEl.textContent = `Memuat chapter ${currentChapter}...`;
         const ok = await loadChapter(currentChapter);
@@ -233,32 +335,34 @@
           loadingEl.textContent = "";
         }
 
-        // disable tombol prev kalau di chapter 1
         if (currentChapter <= 1) {
           prevBtn.disabled = true;
         }
       })();
 
-      // tombol prev/next: redirect dengan chapter baru
+      // tombol prev/next
       prevBtn.addEventListener("click", () => {
         if (currentChapter <= 1) return;
-        const prev = currentChapter - 1;
-        const url =
-          "?series=" +
-          encodeURIComponent(series) +
-          "&chapter=" +
-          encodeURIComponent(prev);
-        window.location.search = url;
+        navigateToChapter(currentChapter - 1);
       });
 
       nextBtn.addEventListener("click", () => {
-        const next = currentChapter + 1;
-        const url =
-          "?series=" +
-          encodeURIComponent(series) +
-          "&chapter=" +
-          encodeURIComponent(next);
-        window.location.search = url;
+        navigateToChapter(currentChapter + 1);
+      });
+
+      // pilih chapter manual (input + tombol)
+      goBtn.addEventListener("click", () => {
+        const target = parseInt(chapterInput.value, 10);
+        if (Number.isNaN(target) || target < 1) return;
+        navigateToChapter(target);
+      });
+
+      chapterInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          const target = parseInt(chapterInput.value, 10);
+          if (Number.isNaN(target) || target < 1) return;
+          navigateToChapter(target);
+        }
       });
     </script>
   </body>
