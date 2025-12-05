@@ -1147,15 +1147,15 @@
       </div>
     </div>
   `;
-
-          card.addEventListener("click", () => {
-            // normalisasi: "Solo Leveling" -> "solo-leveling"
+          ard.addEventListener("click", () => {
+            // normalisasi slug jadi nama folder: "Solo Leveling" -> "solo-leveling"
             const seriesSlug = comic.slug.toLowerCase().replace(/\s+/g, "-");
 
+            // RELATIF, tanpa slash di depan, supaya jalan di GitHub Pages (project)
             window.location.href =
               "chapters/?series=" + encodeURIComponent(seriesSlug);
           });
-          
+
           comicGrid.appendChild(card);
         });
       }
